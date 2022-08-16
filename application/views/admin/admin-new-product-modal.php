@@ -1,3 +1,12 @@
+<div class="modal fade" id="new_product" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="<?=base_url('products/add_new_product')?>" enctype="multipart/form-data" method="POST" class="new-product">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Product</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body pb-0" id="load-partial-add-new-product-modal">
 <?php   if (!empty($messages)) {
             foreach ($messages as $key => $message) {   
 ?>
@@ -49,10 +58,28 @@
                             <a href="#" class="add-new-category">add new category</a>
                         </div>
                     </div>
-
-<?php   if (!empty($success)) {    ?>
-<script>
-    $('input#upload-images').val('');
-    $('div#product-images .row').remove();
-</script>
-<?php   }   ?>
+                </div>
+                <div class="modal-body pt-0">
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <div class="input-group mb-3">
+                                <input type="file" class="form-control" id="upload-images" name="files[]" multiple>
+                            </div>
+                        </div>
+                        <div class="col-12" id="product-images"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <section class="hidden hidden-form categories"></section>
+    <form action="<?=base_url('products/add_new_category')?>" class="hidden hidden-form-new-category">
+        <input type="text" name="category_name" class="hidden-new-category-name">
+    </form>
+    <?=form_open_multipart('products/upload_images', 'class="upload-images hidden"')?>
+    </form>
+</div>

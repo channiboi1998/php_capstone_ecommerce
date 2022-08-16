@@ -10,12 +10,20 @@ class Product extends CI_Model {
 
     }
 
+
+    /**
+     * Method for fetchin all of the categories
+     */
     public function get_categories() {
 
         return $this->db->query("SELECT `id`, `category_name` FROM `categories`")->result_array();
 
     }
 
+
+    /**
+     * Method for updating the name of a specific category by id, passing the new name value of the category
+     */
     public function update_category($id, $value) {
 
         $this->form_validation->set_rules('category_name', 'New Category Name', 'required|xss_clean');
@@ -43,6 +51,10 @@ class Product extends CI_Model {
 
     }
 
+
+    /**
+     * Method for deleting a category by id
+     */
     public function delete_category($id) {
 
         /**
@@ -58,6 +70,10 @@ class Product extends CI_Model {
 
     }
 
+
+    /**
+     * Method for adding  a new category on this class
+     */
     public function add_new_category() {
 
         $this->form_validation->set_rules('category_name', 'New Category Name', 'required|xss_clean');
@@ -73,18 +89,19 @@ class Product extends CI_Model {
 
             if ($this->input->post('category_name')) {
 
-                $result = $this->db->query("SELECT * FROM categories WHERE `category_name` = ?", [
-                    $this->input->post('category_name'),
-                ])->row_array();
+                // TEMPORARY DISABLED THIS FEATURE BECAUSE I CANNOT Think weell bro
+                // $result = $this->db->query("SELECT * FROM categories WHERE `category_name` = ?", [
+                //     $this->input->post('category_name'),
+                // ])->row_array();
 
-                if ($result) {
+                // if ($result) {
 
-                    return [
-                        'status' => 'error',
-                        'message' => '<p><b>'.$this->input->post('category_name').'</b> category already exist.</p>',
-                    ];
+                //     return [
+                //         'status' => 'error',
+                //         'message' => '<p><b>'.$this->input->post('category_name').'</b> category already exist.</p>',
+                //     ];
 
-                } else {
+                // } else {
 
                     $this->db->query("INSERT INTO categories (`category_name`, `created_at`, `updated_at`) VALUES (?,?,?)", [
                         $this->input->post('category_name'),
@@ -97,7 +114,7 @@ class Product extends CI_Model {
                         'message' => '<p>Successfully added a new product category</p>'
                     ];
 
-                }
+                //}
 
             }
 
@@ -105,6 +122,10 @@ class Product extends CI_Model {
 
     }
 
+
+    /**
+     * Method for adding a new product on this class
+     */
     public function add_new_product() {
 
         $this->form_validation->set_rules('product_name', 'Product Name', 'required|xss_clean');
@@ -119,13 +140,33 @@ class Product extends CI_Model {
 
         } else {
 
-            $this->db->query("INSERT INTO products (`product_name`, `product_description`, `created_at`, `updated_at`) VALUES (?, ?, ?, ?)", [
+            $productImages = [];
+
+            if ($this->input->post('product_images')) {
+
+                foreach($this->input->post('product_images') as $key => $value) {
+        
+                    $productImages[$key]['file_path'] = $value;
+                    $productImages[$key]['is_main'] = ($key == $this->input->post('is_main') ? 1 : 0);
+        
+                }
+
+            }
+
+            /**
+             * Create the the product
+             */
+            $this->db->query("INSERT INTO products (`product_name`, `product_description`, `product_images`, `created_at`, `updated_at`) VALUES (?, ?, ?, ?, ?)", [
                 $this->input->post('product_name'),
                 $this->input->post('product_description'),
+                json_encode($productImages),
                 date('Y-m-d, H:i:s'),
                 date('Y-m-d, H:i:s'),
             ]);
 
+            /**
+             * Creating this if ever that a new category is created and assigned to this product, we will create an entry to the middle table (product_categories) Since it `Product` and `Cateories` are in many-to-many relationship
+             */
             $productId = $this->db->insert_id();
 
             if($categories = $this->input->post('categories')) {
