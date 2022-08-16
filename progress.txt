@@ -1,0 +1,41 @@
+THESIS - CAPSTONE
+
+------------------------------------------
+DAY 1
+
+DATABASE
+- created a schema with only `users` table in it.
+
+USER
+- created a `User Registration & Login` functionality (with session handlers).
+
+    URL endpoints: 
+    - user registration form    http://localhost/register
+    - user login form           http://localhost/login
+
+ADMIN
+- created `Admin Login` functionality (with session handlers).
+
+    URL endpoints: 
+    - http://localhost/admin
+
+
+PRODUCTS
+
+- setup products page url endpoint: http://localhost/dashboard/products
+- setup orders page endpoint: http://localhost/dashboard/orders
+
+
+------------------------------------------
+DAY 2
+
+
+USER LOGIN AND REGISTER | ADMIN LOGIN
+- Fixed the routes so that the controller name is not visible on the url.
+
+ADMIN
+- Created a logout method
+
+USER GLOBAL HEADER NAVIGATION
+- Display the current email address and logout button on the global header navigation whenever there is session.
+- Inserted a logout button on the global navigation
