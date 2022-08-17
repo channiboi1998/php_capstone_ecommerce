@@ -27,9 +27,12 @@ class Products extends CI_Controller {
     /**
      * Table Refresh on every AJAX call
      */
-    function ajax_products_list_paginate_refresh() {
+    function product_list_paginate($parameter = NULL) {
 
-        $data['products'] = $this->Product->get_products();
+        $data = $this->Product->get_products();
+
+        $data['search_name'] = (!empty($this->input->get('search_name')) ? '&search_name='.$this->input->get('search_name') : '');
+
         $this->load->view('partials/products-list-paginate', $data);
 
     }
@@ -58,7 +61,10 @@ class Products extends CI_Controller {
         $data['product_price'] = (!empty($this->input->post('product_price')) ? $this->input->post('product_price') : '');
         $data['selected_categories'] = (!empty($this->input->post('categories')) ? $this->input->post('categories') : []);
         $data['categories'] = $this->Product->get_categories();
-        $data['products'] = $this->Product->get_products();
+
+        $result = $this->Product->get_products();
+        $data['products'] = $result['products'];
+        $data['number_of_pages'] = $result['number_of_pages'];
 
         $this->load->view('admin/admin-products-list', $data);
 

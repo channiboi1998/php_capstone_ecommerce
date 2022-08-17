@@ -3,13 +3,13 @@
 class Product extends CI_Model {
 
 
-    function __construct() {
+    public function __construct() {
 
         parent::__construct();
 
     }
 
-    function get_product_by_id($id) {
+    public function get_product_by_id($id) {
 
         $product = $this->db->query("SELECT `products`.*, GROUP_CONCAT(`product_categories`.`category_id`) AS `categories`
                                     FROM `products` LEFT JOIN 
@@ -23,14 +23,23 @@ class Product extends CI_Model {
 
     }
 
-    /**
-     * Method to fetch the products | planning to make this dynamic as well [e.g if there is a parameter/condition on the method]
-     */
-    function get_products() {
+    private function paginate($page, $query, $numberOfResult) {
 
-        $products = $this->db->query("SELECT * FROM `products`")->result_array();
+        if(empty($page)) {
+            $page = 1;
+        }
+        
+        $resultPerPage = 5;
+        $numberOfPages = ceil($numberOfResult / $resultPerPage);
+        $pageFirstResult = ($page - 1) * $resultPerPage;
+        
+        $products = $this->db->query($query. " LIMIT $pageFirstResult, $resultPerPage")->result_array();
 
+        /**
+         * Check if there is results from the last query. If there is, Check if there is product images.
+         */
         if ($products) {
+
             foreach ($products as $key => $product) {
 
                 $productImages = json_decode($products[$key]['product_images'], TRUE);
@@ -50,15 +59,42 @@ class Product extends CI_Model {
             }
             
         }
+
+        return [
+            'products' => $products,
+            'number_of_pages' => $numberOfPages,
+        ];
+
+    }
+
+
+    /**
+     * Method to fetch the products | planning to make this dynamic as well [e.g if there is a parameter/condition on the method]
+     */
+    public function get_products() {
+
+        if ($searched_name = $this->input->get('search_name')) {
+
+            $result = $this->db->query("SELECT * FROM `products` WHERE `product_name` LIKE ?", ['%'.$searched_name.'%'])->result_array();
+
+        } else {
+
+            $result = $this->db->query("SELECT * FROM `products`")->result_array();
+
+        }
+
+        $page = (!empty($this->input->get('page')) ? (int)$this->input->get('page') : 1);
         
-        return $products;
+        $query = $this->db->last_query();
+
+        return $this->paginate($page, $query, count($result));
 
     }
 
     /**
      * Method for deleting the products (via GET method on the controller)
      */
-    function delete_product($id) {
+    public function delete_product($id) {
 
         $this->db->query("DELETE FROM `product_categories` WHERE `product_id` = ?", [$id]);
         $this->db->query("DELETE FROM `products` WHERE `id` = ?", [$id]);
@@ -181,7 +217,7 @@ class Product extends CI_Model {
     /**
      * The method responsible for updating the product by ID
      */
-    function update_product_by_id($id) {
+    public function update_product_by_id($id) {
 
         $this->form_validation->set_rules('product_name', 'Product Name', 'required|xss_clean');
         $this->form_validation->set_rules('product_description', 'Product Description', 'required|xss_clean');

@@ -1,3 +1,6 @@
+<?php   for ($i = 1; $i<=$number_of_pages; $i++) {  ?>
+            <a class="product-list-paginate-page" href="<?=base_url('products/product_list_paginate?page='.$i.$search_name)?>"><?=$i?></a>
+<?php   }   ?>
             <table class="table products-list">
                 <thead>
                     <tr>
@@ -25,9 +28,9 @@
                     </tr>
 <?php
                 }
-        } else {
-            echo 'No data available';
-        }
-?>
+        } else {    ?>
+                    <div>No data available .....</div>
+                    <script>$('a.product-list-paginate-page:nth-child(1)').click();</script>
+<?php   }   ?>
                 </tbody>
             </table>

@@ -73,9 +73,12 @@ $route['dashboard/orders'] = 'admins/orders'; /**  CHANGE LATER**/
 $route['dashboard/products'] = 'products/products_list';
 $route['products/edit_product/(:any)']['get'] = 'products/edit_product/$1';
 $route['products/update_product/(:any)'] = 'products/update_product/$1';
+$route['products/ajax_products_list_paginate_refresh/(:any)']['get'] = 'ajax_products_list_paginate_refresh/$1';
+
 $route['products/delete_product/(:any)']['get'] = 'products/delete_product/$1';
 $route['products/update_category/(:any)'] = 'products/update_category/$1';
 $route['products/delete_category/(:any)']['get'] = 'products/delete_category/$1';
+
 
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;
