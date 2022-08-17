@@ -1,12 +1,67 @@
 <?php
 
-
 class Product extends CI_Model {
 
 
     function __construct() {
 
         parent::__construct();
+
+    }
+
+    function get_product_by_id($id) {
+
+        $product = $this->db->query("SELECT `products`.*, GROUP_CONCAT(`product_categories`.`category_id`) AS `categories`
+                                    FROM `products` LEFT JOIN 
+                                    `product_categories` ON 
+                                    `products`.`id` = `product_categories`.`product_id` 
+                                    WHERE `products`.`id` = ? GROUP BY `products`.`id`", [$id])->row_array();
+
+        $product['product_images'] = json_decode($product['product_images'], TRUE);
+        
+        return $product;
+
+    }
+
+    /**
+     * Method to fetch the products | planning to make this dynamic as well [e.g if there is a parameter/condition on the method]
+     */
+    function get_products() {
+
+        $products = $this->db->query("SELECT * FROM `products`")->result_array();
+
+        if ($products) {
+            foreach ($products as $key => $product) {
+
+                $productImages = json_decode($products[$key]['product_images'], TRUE);
+
+                if ($productImages) {
+
+                    foreach($productImages as $imageKey => $image) {
+    
+                        if ($image['is_main'] == 1) {
+                            $products[$key]['product_images'] = $productImages[$imageKey]['file_path'];
+                        }
+    
+                    }
+
+                }
+
+            }
+            
+        }
+        
+        return $products;
+
+    }
+
+    /**
+     * Method for deleting the products (via GET method on the controller)
+     */
+    function delete_product($id) {
+
+        $this->db->query("DELETE FROM `product_categories` WHERE `product_id` = ?", [$id]);
+        $this->db->query("DELETE FROM `products` WHERE `id` = ?", [$id]);
 
     }
 
@@ -124,12 +179,13 @@ class Product extends CI_Model {
 
 
     /**
-     * Method for adding a new product on this class
+     * The method responsible for updating the product by ID
      */
-    public function add_new_product() {
+    function update_product_by_id($id) {
 
         $this->form_validation->set_rules('product_name', 'Product Name', 'required|xss_clean');
         $this->form_validation->set_rules('product_description', 'Product Description', 'required|xss_clean');
+        $this->form_validation->set_rules('product_price', 'Product Price', 'required|xss_clean|numeric');
 
         if ($this->form_validation->run() === FALSE) {
 
@@ -156,9 +212,80 @@ class Product extends CI_Model {
             /**
              * Create the the product
              */
-            $this->db->query("INSERT INTO products (`product_name`, `product_description`, `product_images`, `created_at`, `updated_at`) VALUES (?, ?, ?, ?, ?)", [
+            $this->db->query("UPDATE `products` 
+                                SET `product_name` = ?, `product_description` = ?, `product_price` = ?, `product_images` = ?, `updated_at` = NOW()
+                                WHERE `products`.`id` = ?", [
+                                $this->input->post('product_name'),
+                                $this->input->post('product_description'),
+                                $this->input->post('product_price'),
+                                json_encode($productImages),
+                                $id,
+                            ]);
+
+            $this->db->query("DELETE FROM `product_categories` WHERE `product_id` = ?", [$id]);
+
+            if($categories = $this->input->post('categories')) {
+
+                foreach ($categories as $category) {
+
+                    $this->db->query("INSERT INTO product_categories (`product_id`, `category_id`, `created_at`, `updated_at`) VALUES (?,?,?,?)", [
+                        $id,
+                        $category,
+                        date('Y-m-d, H:i:s'),
+                        date('Y-m-d, H:i:s'),
+                    ]);
+
+                }
+
+            }
+
+            return [
+                'status'  => 'success',
+                'message' => '<p>Successfully updated product</p>'
+            ];
+
+        }
+
+    }    
+
+    /**
+     * Method for adding a new product on this class
+     */
+    public function add_new_product() {
+
+        $this->form_validation->set_rules('product_name', 'Product Name', 'required|xss_clean');
+        $this->form_validation->set_rules('product_description', 'Product Description', 'required|xss_clean');
+        $this->form_validation->set_rules('product_price', 'Product Price', 'required|xss_clean|numeric');
+
+        if ($this->form_validation->run() === FALSE) {
+
+            return [
+                'status' => 'error',
+                'message' => validation_errors(),
+            ];
+
+        } else {
+
+            $productImages = [];
+
+            if ($this->input->post('product_images')) {
+
+                foreach($this->input->post('product_images') as $key => $value) {
+        
+                    $productImages[$key]['file_path'] = $value;
+                    $productImages[$key]['is_main'] = ($key == $this->input->post('is_main') ? 1 : 0);
+        
+                }
+
+            }
+
+            /**
+             * Create the the product
+             */
+            $this->db->query("INSERT INTO products (`product_name`, `product_description`, `product_price`, `product_images`, `created_at`, `updated_at`) VALUES (?, ?, ?, ?, ?, ?)", [
                 $this->input->post('product_name'),
                 $this->input->post('product_description'),
+                $this->input->post('product_price'),
                 json_encode($productImages),
                 date('Y-m-d, H:i:s'),
                 date('Y-m-d, H:i:s'),

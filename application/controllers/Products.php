@@ -2,6 +2,7 @@
 
 class Products extends CI_Controller {
 
+
     function __construct() {
 
         parent::__construct();
@@ -19,6 +20,17 @@ class Products extends CI_Controller {
 
         $data['page_title'] = 'Products Page';
         $this->load->view('products/products-list', $data);
+
+    }
+
+
+    /**
+     * Table Refresh on every AJAX call
+     */
+    function ajax_products_list_paginate_refresh() {
+
+        $data['products'] = $this->Product->get_products();
+        $this->load->view('partials/products-list-paginate', $data);
 
     }
 
@@ -43,13 +55,60 @@ class Products extends CI_Controller {
         $data['page_title'] = 'A Web Page';
         $data['product_name'] = (!empty($this->input->post('product_name')) ? $this->input->post('product_name') : '');
         $data['product_description'] = (!empty($this->input->post('product_description')) ? $this->input->post('product_description') : '');
+        $data['product_price'] = (!empty($this->input->post('product_price')) ? $this->input->post('product_price') : '');
         $data['selected_categories'] = (!empty($this->input->post('categories')) ? $this->input->post('categories') : []);
         $data['categories'] = $this->Product->get_categories();
+        $data['products'] = $this->Product->get_products();
 
         $this->load->view('admin/admin-products-list', $data);
 
     }
 
+    /**
+     * The Method responsible for updating the product
+     */
+    function update_product($id) {
+        
+        $result = $this->Product->update_product_by_id($id);
+        
+        if ($result['status'] === 'error') {
+            $data['messages'] = ['error' => $result['message']];
+        } else if ($result['status'] === 'success') {
+            $data['messages'] = ['success' => $result['message']];
+        }
+        //add toast here or create a function to append on messages
+        print_r($data['messages']);
+
+    }
+
+    /**
+     * The Method responsible for placing the current values of product before update method
+     */
+    function edit_product($id) {
+
+        $product = $this->Product->get_product_by_id($id);
+
+        $data['product_id'] = $product['id'];
+        $data['product_name'] = (!empty($this->input->post('product_name')) ? $this->input->post('product_name') : $product['product_name']);
+        $data['product_description'] =  (!empty($this->input->post('product_description')) ? $this->input->post('product_description') : $product['product_description']);
+        $data['product_price'] = (!empty($this->input->post('product_price')) ? $this->input->post('product_price') : $product['product_price']);
+        $data['selected_categories'] = (!empty($this->input->post('categories')) ? $this->input->post('categories') : explode(',', $product['categories']));
+        $data['categories'] = $this->Product->get_categories();
+        $data['product_images'] = $product['product_images'];
+        $this->load->view('partials/edit-new-product-modal', $data);
+
+    }
+
+
+    /**
+     * The Method responsible for deleting the products
+     */
+    function delete_product($id) {
+
+        $this->Product->delete_product($id);
+
+    }
+    
 
     /**
      * The method for uploading the images into the server
@@ -77,7 +136,9 @@ class Products extends CI_Controller {
                 $this->upload->initialize($config); 
                  
                 if ($this->upload->do_upload('file')) { 
-
+                    /**
+                     * All Good, Proceed to uploading the files to the server
+                     */
                     $fileData = $this->upload->data(); 
                     $uploadData[$i]['file_name'] = $fileData['file_name']; 
                     $uploadData[$i]['uploaded_on'] = date("Y-m-d H:i:s"); 
@@ -89,12 +150,18 @@ class Products extends CI_Controller {
 
                 } else {  
 
+                    /**
+                     * Means that there is an error on the file upload process | Might be incorrect file type or etc.
+                     */
                     $errorUploadType .= $_FILES['file']['name'].' | ';  
 
                 }
             }
             
-            if($data['uploaded_images']) {
+            /**
+             * Check if there is an image/s successfully uploaded to the server | create an HTML structure `jquery UI sortable` to be passed on the AJAX script to view 
+             */
+            if ($data['uploaded_images']) {
 
                 $html = '';
 
@@ -105,7 +172,7 @@ class Products extends CI_Controller {
                         $html .= '      <div class="col-2 my-auto"><input type="radio" name="is_main" value="'.$key.'"><p class="main-photo-label">Main Photo</p></div>';
                         $html .= '      <div class="col-2 my-auto"><i class="bi bi-list"></i></div>';
                         $html .= '      <div class="col-2 my-auto"><img src="'.$image['filepath'].'" alt=""></div>';
-                        $html .= '      <div class="col my-auto"><p class="product-image-title">'.substr($image['filename'], 0, 20).' ...</p></div>';
+                        $html .= '      <div class="col my-auto"><p class="product-image-title">...'.substr($image['filename'], -10).'</p></div>';
                         $html .= '      <div class="col-2 my-auto text-right"><i class="bi bi-trash"></i></div>';
                         $html .= '</div>';
 
@@ -119,6 +186,19 @@ class Products extends CI_Controller {
 
     }
 
+    /**
+     * This method is when the user wants to create a new product, display a blank form via AJAX
+     */
+    public function prepare_add_new_form() {
+
+        $data['product_name'] = (!empty($this->input->post('product_name')) ? $this->input->post('product_name') : '');
+        $data['product_description'] = (!empty($this->input->post('product_description')) ? $this->input->post('product_description') : '');
+        $data['product_price'] = (!empty($this->input->post('product_price')) ? $this->input->post('product_price') : '');
+        $data['selected_categories'] = (!empty($this->input->post('categories')) ? $this->input->post('categories') : []);
+        $data['categories'] = $this->Product->get_categories();
+
+        $this->load->view('partials/add-new-product-modal-prepare', $data);
+    }
 
     /**
      * The Method for adding a new product on this class
@@ -145,6 +225,7 @@ class Products extends CI_Controller {
              */        
             $data['product_name'] = (!empty($this->input->post('product_name')) ? $this->input->post('product_name') : '');
             $data['product_description'] = (!empty($this->input->post('product_description')) ? $this->input->post('product_description') : '');
+            $data['product_price'] = (!empty($this->input->post('product_price')) ? $this->input->post('product_price') : '');
             $data['selected_categories'] = (!empty($this->input->post('categories')) ? $this->input->post('categories') : []);
             $data['categories'] = $this->Product->get_categories();
 
@@ -158,6 +239,7 @@ class Products extends CI_Controller {
              */        
             $data['product_name'] = '';
             $data['product_description'] = '';
+            $data['product_price'] = '';
             $data['selected_categories'] = [];
             $data['categories'] = $this->Product->get_categories();
             $data['success'] = TRUE;
@@ -186,14 +268,11 @@ class Products extends CI_Controller {
         $result = $this->Product->add_new_category($this->input->post('category_name'));
 
         if ($result['status'] === 'error') {
-
             $data['messages'] = ['error' => $result['message']];
-
         } else if ($result['status'] === 'success') {
-
             $data['messages'] = ['success' => $result['message']];
-
         }
+        //Add toast message here or create a JS function to append the message to the frontend
 
         /**
          * Setting up previous data | Important also so that admin won't have to re-populate fields when there is an error
@@ -221,14 +300,7 @@ class Products extends CI_Controller {
         }
 
         $this->Product->delete_category($id);
-
-        /**
-         * Setting up previous data | Important also so that admin won't have to re-populate fields when there is an error
-         */
-        //$data['selected_categories'] = (!empty($this->input->post('categories')) ? $this->input->post('categories') : []);
-        //$data['categories'] = $this->Product->get_categories();
-
-        //return $this->load->view('partials/category-list', $data);
+        //Add Toast in the future here after succesful deletion
 
     }
 
@@ -250,14 +322,11 @@ class Products extends CI_Controller {
         $result = $this->Product->update_category($id, $this->input->post('category_name'));
 
         if ($result['status'] === 'error') {
-
             $data['messages'] = ['error' => $result['message']];
-
         } else if ($result['status'] === 'success') {
-
             $data['messages'] = ['success' => $result['message']];
-
         }
+        //Add toast here or create a JS function to show message on the frontend
 
         /**
          * Setting up previous data | Important also so that admin won't have to re-populate fields when there is an error

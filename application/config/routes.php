@@ -71,6 +71,9 @@ $route['dashboard/orders'] = 'admins/orders'; /**  CHANGE LATER**/
  * Products routes collection
  */
 $route['dashboard/products'] = 'products/products_list';
+$route['products/edit_product/(:any)']['get'] = 'products/edit_product/$1';
+$route['products/update_product/(:any)'] = 'products/update_product/$1';
+$route['products/delete_product/(:any)']['get'] = 'products/delete_product/$1';
 $route['products/update_category/(:any)'] = 'products/update_category/$1';
 $route['products/delete_category/(:any)']['get'] = 'products/delete_category/$1';
 
