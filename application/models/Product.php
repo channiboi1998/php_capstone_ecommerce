@@ -9,6 +9,14 @@ class Product extends CI_Model {
 
     }
 
+    /***
+     * This method is created specifically for fetching the product price for checkout/cart page | Only the price, so that other product attributes will not be fetched | the $id value is coming from the session
+     */
+    public function get_product_price_by_id($id) {
+
+        return $this->db->query("SELECT `product_price` FROM `products` WHERE `products`.`id` = ?", [$id])->row_array();
+
+    }
 
     /**
      * This method is the fetch the products

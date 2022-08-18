@@ -2,17 +2,34 @@
 
 class Users extends CI_Controller {
 
-    function __construct() {
+    public function __construct() {
 
         parent::__construct();
         $this->load->model('User');
         $this->load->model('Product');
 
+        /**
+         * Setting up the cart_session
+         */
+        if (empty($this->session->userdata('cart_session'))) {
+
+            $this->session->set_userdata('cart_session', []);
+            $this->session->set_userdata('cart_count', 'empty');
+
+        } else {
+
+            $currentCartItemsCount = 0;
+            foreach ($this->session->userdata('cart_session') as $currentCartItem) {
+                $currentCartItemsCount = $currentCartItemsCount + $currentCartItem['quantity'];
+            }
+            $this->session->set_userdata('cart_count', $currentCartItemsCount);
+
+        }
+
     }
 
-
     /**
-     * This method is for displaying the single product
+     * This method is for displaying the single product | Values to be passed on the single product template
      */
     public function show($id) {
 

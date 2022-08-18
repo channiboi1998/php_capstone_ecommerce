@@ -3,7 +3,7 @@
 class Products extends CI_Controller {
 
 
-    function __construct() {
+    public function __construct() {
 
         parent::__construct();
         $this->load->helper('form');
@@ -16,7 +16,7 @@ class Products extends CI_Controller {
     /**
      * Table Refresh on every AJAX call
      */
-    function product_list_paginate($parameter = NULL) {
+    public function product_list_paginate($parameter = NULL) {
 
         $data = $this->Product->get_products();
 
@@ -30,7 +30,7 @@ class Products extends CI_Controller {
     /**
      * Lists all of the products | This is also where the `add-new-product` Modal is instantiated
      */
-    function products_list() {
+    public function products_list() {
 
         if (empty($this->session->userdata('user_session')['is_admin'])) {
             /**
@@ -62,7 +62,7 @@ class Products extends CI_Controller {
     /**
      * The Method responsible for updating the product
      */
-    function update_product($id) {
+    public function update_product($id) {
         
         $result = $this->Product->update_product_by_id($id);
         
@@ -79,7 +79,7 @@ class Products extends CI_Controller {
     /**
      * The Method responsible for placing the current values of product before update method
      */
-    function edit_product($id) {
+    public function edit_product($id) {
 
         $product = $this->Product->get_product_by_id($id);
 
@@ -98,7 +98,7 @@ class Products extends CI_Controller {
     /**
      * The Method responsible for deleting the products
      */
-    function delete_product($id) {
+    public function delete_product($id) {
 
         $this->Product->delete_product($id);
 
@@ -249,7 +249,7 @@ class Products extends CI_Controller {
     /**
      * The Method for adding a new category on this class
      */
-    function add_new_category() {
+    public function add_new_category() {
 
         if (empty($this->session->userdata('user_session')['is_admin'])) {
             /**
@@ -283,7 +283,7 @@ class Products extends CI_Controller {
     /**
      * The delete-a-category method for this class
      */
-    function delete_category($id) {
+    public function delete_category($id) {
 
         if (empty($this->session->userdata('user_session')['is_admin'])) {
             /**
@@ -303,7 +303,7 @@ class Products extends CI_Controller {
     /**
      * The update-one-category for this class
      */
-    function update_category($id) {
+    public function update_category($id) {
 
         if (empty($this->session->userdata('user_session')['is_admin'])) {
             /**

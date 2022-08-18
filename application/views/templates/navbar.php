@@ -11,18 +11,14 @@
                     </li>
                 </ul>
                 <div class="d-flex">
-<?php   if (!empty($this->session->userdata('user_session'))) {
-?>
+<?php   if (!empty($this->session->userdata('user_session'))) { ?>
                     <p><?=$this->session->userdata('user_session')['email_address']?></p>
-                    <a href="#" class="text-black cart-count">Cart (empty)</a>
+                    <a href="<?=base_url('carts')?>" class="text-black cart-count">Cart (<span id="cart_count"></span>)</a>
                     <a href="<?=base_url('users/logout')?>" class="text-black logout-button">Logout</a>
-<?php
-} else {
-?>
-                    <a href="#" class="text-black">Cart (empty)</a>
-<?php
-}
-?>
+<?php   } else {    ?>  
+                    <a href="<?=base_url('login')?>" class="login-link">Login</a>
+                    <a href="<?=base_url('carts')?>" class="text-black">Cart (<span id="cart_count"></span>)</a>
+<?php   }   ?>
                 </div>
             </div>
         </div>

@@ -9,7 +9,8 @@
         <link rel="stylesheet" href="<?=base_url('assets/css/bootstrap.min.css')?>">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
         <link rel="stylesheet/less" type="text/css" href="<?=base_url('assets/css/flickity.css')?>" />
-        <link rel="stylesheet/less" type="text/css" href="<?=base_url('assets/css/styles.less')?>" />
+        <link rel="stylesheet/less" type="text/css" href="<?=base_url('assets/css/styles.less')?>" />        
+        <link rel="stylesheet" href="<?=base_url('assets/css/js-snackbar.css')?>">
         <script src="<?=base_url()?>assets/js/less.min.js" crossorigin="anonymous"></script>
         <title><?=$page_title?></title>
     </head>

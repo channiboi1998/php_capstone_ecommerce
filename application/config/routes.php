@@ -51,11 +51,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 */
 $route['default_controller'] = 'users/products';
 
+
 /**
  * Users routes collection
  */
 $route['register'] = 'users/register';
 $route['login'] = 'users/login';
+
 
 /**
  * Admin routes collection
@@ -72,6 +74,7 @@ $route['dashboard/orders'] = 'admins/orders'; /**  CHANGE LATER**/
 $route['products'] = 'users/products';
 $route['products/show/(:any)']['get'] = 'users/show/$1';
 
+
 /**
  * Admin - Products routes collection
  */
@@ -84,6 +87,10 @@ $route['products/delete_product/(:any)']['get'] = 'products/delete_product/$1';
 $route['products/update_category/(:any)'] = 'products/update_category/$1';
 $route['products/delete_category/(:any)']['get'] = 'products/delete_category/$1';
 
+/**
+ * Orders - User routes collection
+ */
+$route['carts'] = 'orders/carts';
 
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;

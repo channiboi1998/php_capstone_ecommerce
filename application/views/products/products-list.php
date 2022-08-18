@@ -17,6 +17,7 @@
         }
 ?>
                 </ul>
+                <a href="<?=base_url()?>">Clear Filters</a>
             </form>
         </div>
         <div class="col product-list p-3">

@@ -2,7 +2,7 @@
 
 class Admins extends CI_Controller {
 
-    function __construct() {
+    public function __construct() {
 
         parent::__construct();
         $this->load->model('User');
@@ -10,14 +10,14 @@ class Admins extends CI_Controller {
     }
 
 
-    function logout() {
+    public function logout() {
 
         $this->session->unset_userdata('user_session');
         return redirect('admin');
 
     }
 
-    function login() {
+    public function login() {
 
         /**
          * Just a security feature | Session Checking | Checking if current `user_session` if exist, is an admin.
@@ -79,7 +79,7 @@ class Admins extends CI_Controller {
 
     }
 
-    function orders() {
+    public function orders() {
 
         if (empty($this->session->userdata('user_session')['is_admin'])) {
             /**

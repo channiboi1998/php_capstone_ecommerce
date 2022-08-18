@@ -34,9 +34,9 @@
                 <p><?=$product['product_description']?></p>
             </div>
             <div class="text-right mb-3">
-                <form action="#" class="add-to-cart">
+                <form action="<?=base_url('orders/add_to_cart/'.$product['id'])?>" method="POST" class="add-to-cart">
                     <input type="submit" class="btn btn-success" value="Buy">
-                    <select name="product_quantity" id="" class="form-select">
+                    <select name="quantity" id="" class="form-select">
 <?php   for ($i=1; $i<=3; $i++) {   ?>
                         <option value="<?=$i?>">Get me <?=$i?> ($<?=$i*$product['product_price']?>)</option>
 <?php   }   ?>

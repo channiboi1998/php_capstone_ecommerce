@@ -4,6 +4,7 @@
         <script src="<?=base_url('assets/js/bootstrap.bundle.min.js')?>" crossorigin="anonymous"></script>
         <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
         <script src="<?=base_url('assets/js/flickity.pkgd.min.js')?>" crossorigin="anonymous"></script>
+        <script src="<?=base_url('assets/js/js-snackbar.js')?>" crossorigin="anonymous"></script>
         <script src="<?=base_url('assets/js/script.js')?>" crossorigin="anonymous"></script>
     </body>
 </html>
