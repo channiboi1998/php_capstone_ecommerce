@@ -8,6 +8,7 @@ class Orders extends CI_Controller {
         parent::__construct();
 
         $this->load->model('Product');
+        $this->load->model('Order');
         //$this->session->unset_userdata('cart_session');
 
     }
@@ -132,6 +133,7 @@ class Orders extends CI_Controller {
          * Fetch the product price per items in cart, also calculate the total price per item
          */
         $data['cart_total'] = 0;
+
         foreach ($data['cart_items'] = $this->session->userdata('cart_session') as $key => $cartItem) {
 
             $data['cart_items'][$key]['product_price'] = $this->Product->get_product_price_by_id($cartItem['product_id'])['product_price'];
@@ -139,8 +141,55 @@ class Orders extends CI_Controller {
             $data['cart_total'] = $data['cart_total'] + $data['cart_items'][$key]['total_price'];
 
         }
+
+        $data['shipping_first_name'] = (!empty($this->input->post('shipping_first_name')) ? $this->input->post('shipping_first_name') : '');
+        $data['shipping_last_name'] = (!empty($this->input->post('shipping_last_name')) ? $this->input->post('shipping_last_name') : '');
+        $data['shipping_email_address'] = (!empty($this->input->post('shipping_email_address')) ? $this->input->post('shipping_email_address') : '');
+        $data['shipping_address'] = (!empty($this->input->post('shipping_address')) ? $this->input->post('shipping_address') : '');
+        $data['shipping_address_2'] = (!empty($this->input->post('shipping_address_2')) ? $this->input->post('shipping_address_2') : '');
+        $data['shipping_city'] = (!empty($this->input->post('shipping_city')) ? $this->input->post('shipping_city') : '');
+        $data['shipping_state'] = (!empty($this->input->post('shipping_state')) ? $this->input->post('shipping_state') : '');
+        $data['shipping_zipcode'] = (!empty($this->input->post('shipping_zipcode')) ? $this->input->post('shipping_zipcode') : '');
+
+        $data['billing_first_name'] = (!empty($this->input->post('billing_first_name')) ? $this->input->post('billing_first_name') : '');
+        $data['billing_last_name'] = (!empty($this->input->post('billing_last_name')) ? $this->input->post('billing_last_name') : '');
+        $data['billing_email_address'] = (!empty($this->input->post('billing_email_address')) ? $this->input->post('billing_email_address') : '');
+        $data['billing_address'] = (!empty($this->input->post('billing_address')) ? $this->input->post('billing_address') : '');
+        $data['billing_address_2'] = (!empty($this->input->post('billing_address_2')) ? $this->input->post('billing_address_2') : '');
+        $data['billing_city'] = (!empty($this->input->post('billing_city')) ? $this->input->post('billing_city') : '');
+        $data['billing_state'] = (!empty($this->input->post('billing_state')) ? $this->input->post('billing_state') : '');
+        $data['billing_zipcode'] = (!empty($this->input->post('billing_zipcode')) ? $this->input->post('billing_zipcode') : '');
+
         $data['page_title'] = '(Carts Page) I Dojo eCommerce';
-        $this->load->view('templates/cart', $data);
+
+        if ($this->input->post()) {
+
+            $result = $this->Order->create_order();
+
+            if ($result['status'] === 'error') {
+                /***
+                 * Means that there is an error found during the submit of order, return the error
+                 */
+                $this->session->set_flashdata('messages', ['error' => $result['message']]);
+                return $this->load->view('templates/cart', $data);
+
+            } else if ($result['status'] === 'success') {
+                /***
+                 * Means that the submit of order went successfully, redirect the user to the prdouct catalog page
+                 */
+                $this->session->set_flashdata('messages', ['success' => $result['message']]);
+                $this->session->set_userdata('cart_session', []);
+                return redirect();
+
+            }
+
+        } else {
+            /***
+             * Sumbmit order form is not yet submitted, just display the data in cart
+             */
+            $this->load->view('templates/cart', $data);
+
+        }
 
     }
 

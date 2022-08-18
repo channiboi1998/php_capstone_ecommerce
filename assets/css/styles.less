@@ -1,3 +1,8 @@
+input.disabled {
+	background-color: #f4f4f4;
+	pointer-events: none;
+}
+
 a {
 	color: var(--bs-body-color);
 }
@@ -10,7 +15,7 @@ a {
 	text-align: justify;
 }
 
-.hidden {
+.hidden, .hide {
 	display: none;
 }
 
@@ -38,6 +43,11 @@ section.login-register {
 }
 
 section.container.checkout-cart-page {
+
+	form.checkout-form {
+		max-width: 600px;
+	}
+
 	img {
 		max-width: 50px;
 	}

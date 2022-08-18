@@ -85,7 +85,86 @@ $(document).ready(function() {
 
         return false;
 
-    })
+    });
 
+    /**
+     * Function to check if `same_as_billing` is checked for the checkout order form
+     */
+    function same_as_billing() {
+
+        if($('input#same_as_billing').is(":checked")) {
+
+            console.log('yep its checked');
+            $('.checkout-cart-page div.billing-information input[type="text"]').addClass('disabled');
+
+        } else {
+
+            $('.checkout-cart-page div.billing-information input[type="text"]').removeClass('disabled');
+
+        }
+
+    }
+    /**
+     * Instantiate the same_as_billing method for new page load
+     */
+    same_as_billing();
+
+
+    /**
+     * Everytime the `input#same_as_billing` on the checkout page is clicked, call the `same_as_billing` method
+     */
+    $(document).on('change', 'input#same_as_billing', function() {
+
+        same_as_billing();
+
+    });
+
+    /**
+     * Stripe JS
+     */
+     var $stripeForm = $(".form-validation");
+     $('form.form-validation').bind('submit', function (e) {
+         var $stripeForm = $(".form-validation"),
+             inputSelector = ['input[type=email]', 'input[type=password]',
+                 'input[type=text]', 'input[type=file]',
+                 'textarea'
+             ].join(', '),
+             $inputs = $stripeForm.find('.required').find(inputSelector),
+             $errorMessage = $stripeForm.find('div.error'),
+             valid = true;
+         $errorMessage.addClass('hide');
+         $('.has-error').removeClass('has-error');
+         $inputs.each(function (i, el) {
+             var $input = $(el);
+             if ($input.val() === '') {
+                 $input.parent().addClass('has-error');
+                 $errorMessage.removeClass('hide');
+                 e.preventDefault();
+             }
+         });
+         if (!$stripeForm.data('cc-on-file')) {
+             e.preventDefault();
+             Stripe.setPublishableKey($stripeForm.data('stripe-publishable-key'));
+             Stripe.createToken({
+                 number: $('.card-number').val(),
+                 cvc: $('.card-cvc').val(),
+                 exp_month: $('.card-expiry-month').val(),
+                 exp_year: $('.card-expiry-year').val()
+             }, stripeResponseHandler);
+         }
+     });
+     function stripeResponseHandler(status, res) {
+         if (res.error) {
+             $('.error')
+                 .removeClass('hide')
+                 .find('.alert')
+                 .text(res.error.message);
+         } else {
+             var token = res['id'];
+             $stripeForm.find('input[type=text]').empty();
+             $stripeForm.append("<input type='hidden' name='stripeToken' value='" + token + "'/>");
+             $stripeForm.get(0).submit();
+         }
+     }
 
 });
