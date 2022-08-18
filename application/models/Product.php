@@ -9,6 +9,43 @@ class Product extends CI_Model {
 
     }
 
+
+    /**
+     * This method is the fetch the products
+     */
+    public function get_similar_items_by_categories($categories, $id) {
+
+        $result = $this->db->query("SELECT * FROM `products` 
+                                INNER JOIN `product_categories` ON 
+                                `products`.`id` = `product_categories`.`product_id` 
+                                WHERE `product_categories`.`category_id` IN ($categories) AND `products`.`id` != ?", [$id])->result_array();
+
+        $query = $this->db->last_query();
+
+        return $this->paginate(1, $query, count($result));
+
+    }
+
+
+    /**
+     * This method is for fetching the categories along with it's product count
+     */
+    public function get_product_categories() {
+
+        return $this->db->query("SELECT 
+                                COUNT(`product_categories`.`product_id`) AS `count`,
+                                `categories`.`category_name`,
+                                `categories`.`id`
+                                FROM `product_categories` INNER JOIN
+                                `categories` ON
+                                `product_categories`.`category_id` = `categories`.`id`
+                                GROUP BY(`categories`.`id`)")->result_array();
+
+    }
+
+    /***
+     * This method is for fetching a single product along with it's categories and array-json decoded product images
+     */
     public function get_product_by_id($id) {
 
         $product = $this->db->query("SELECT `products`.*, GROUP_CONCAT(`product_categories`.`category_id`) AS `categories`
@@ -23,13 +60,16 @@ class Product extends CI_Model {
 
     }
 
+    /***
+     * This private method is for pagination | Have set a static value of `6` as offset limit
+     */
     private function paginate($page, $query, $numberOfResult) {
 
         if(empty($page)) {
             $page = 1;
         }
         
-        $resultPerPage = 5;
+        $resultPerPage = 6;
         $numberOfPages = ceil($numberOfResult / $resultPerPage);
         $pageFirstResult = ($page - 1) * $resultPerPage;
         
@@ -69,13 +109,22 @@ class Product extends CI_Model {
 
 
     /**
-     * Method to fetch the products | planning to make this dynamic as well [e.g if there is a parameter/condition on the method]
+     * Method to fetch the products | Dynamic method, being used by `user` and `admin` entities
      */
     public function get_products() {
 
         if ($searched_name = $this->input->get('search_name')) {
 
             $result = $this->db->query("SELECT * FROM `products` WHERE `product_name` LIKE ?", ['%'.$searched_name.'%'])->result_array();
+
+        } else if ($category_id = $this->input->get('category_id')) {
+
+            $result = $this->db->query("SELECT 
+            `products`.*
+            FROM `product_categories` INNER JOIN
+            `products` ON
+            `product_categories`.`product_id` = `products`.`id`
+            WHERE `product_categories`.`category_id` = ?", [$category_id])->result_array();
 
         } else {
 

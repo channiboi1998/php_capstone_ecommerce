@@ -12,17 +12,6 @@ class Products extends CI_Controller {
 
     }
 
-    
-    /**
-     * The index method of this `Product Controller` | Lists all of the products
-     */
-    public function index() {
-
-        $data['page_title'] = 'Products Page';
-        $this->load->view('products/products-list', $data);
-
-    }
-
 
     /**
      * Table Refresh on every AJAX call

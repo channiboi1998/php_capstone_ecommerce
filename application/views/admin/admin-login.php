@@ -1,4 +1,5 @@
-<?php   $this->load->view('templates/header');  ?>
+<?php   $this->load->view('templates/admin-header');  ?>
+<?php   $this->load->view('templates/admin-navbar');  ?>
 <?php   $this->load->view('templates/flashdata');  ?>
 
     <section class="container login-register-form p-5">
@@ -28,4 +29,4 @@
         </form>
     </section>
     
-<?php   $this->load->view('templates/footer');  ?>
+<?php   $this->load->view('templates/admin-footer');  ?>

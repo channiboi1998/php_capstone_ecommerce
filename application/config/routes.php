@@ -49,14 +49,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 | Examples:	my-controller/index	-> my_controller/index
 |		my-controller/my-method	-> my_controller/my_method
 */
-$route['default_controller'] = 'products';
+$route['default_controller'] = 'users/products';
 
 /**
  * Users routes collection
  */
 $route['register'] = 'users/register';
 $route['login'] = 'users/login';
-
 
 /**
  * Admin routes collection
@@ -68,12 +67,18 @@ $route['dashboard/orders'] = 'admins/orders'; /**  CHANGE LATER**/
 
 
 /**
- * Products routes collection
+ * Users - Products routes collection
+ */
+$route['products'] = 'users/products';
+$route['products/show/(:any)']['get'] = 'users/show/$1';
+
+/**
+ * Admin - Products routes collection
  */
 $route['dashboard/products'] = 'products/products_list';
 $route['products/edit_product/(:any)']['get'] = 'products/edit_product/$1';
 $route['products/update_product/(:any)'] = 'products/update_product/$1';
-$route['products/ajax_products_list_paginate_refresh/(:any)']['get'] = 'ajax_products_list_paginate_refresh/$1';
+$route['products/product_list_paginate/(:any)']['get'] = 'products/product_list_paginate/$1';
 
 $route['products/delete_product/(:any)']['get'] = 'products/delete_product/$1';
 $route['products/update_category/(:any)'] = 'products/update_category/$1';

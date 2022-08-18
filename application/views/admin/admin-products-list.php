@@ -1,4 +1,4 @@
-<?php   $this->load->view('templates/header');  ?>
+<?php   $this->load->view('templates/admin-header');  ?>
 <?php   $this->load->view('templates/admin-navbar');  ?>
 <?php   $this->load->view('templates/flashdata');  ?>
 
@@ -17,7 +17,7 @@
 
 <?php   $this->load->view('admin/admin-new-product-modal');  ?>
 <?php   $this->load->view('admin/admin-edit-product-modal');  ?>
-<?php   $this->load->view('templates/footer');  ?>
+<?php   $this->load->view('templates/admin-footer');  ?>
 
 
 <!-- Hidden Forms | Categories AJAX --->
