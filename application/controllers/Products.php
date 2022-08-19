@@ -65,14 +65,8 @@ class Products extends CI_Controller {
     public function update_product($id) {
         
         $result = $this->Product->update_product_by_id($id);
-        
-        if ($result['status'] === 'error') {
-            $data['messages'] = ['error' => $result['message']];
-        } else if ($result['status'] === 'success') {
-            $data['messages'] = ['success' => $result['message']];
-        }
         //add toast here or create a function to append on messages
-        print_r($data['messages']);
+        print_r($result['message']);
 
     }
 

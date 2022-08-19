@@ -6,10 +6,13 @@ class Admins extends CI_Controller {
 
         parent::__construct();
         $this->load->model('User');
+        $this->load->model('Order');
 
     }
 
-
+    /**
+     * The method for the logout of admins
+     */
     public function logout() {
 
         $this->session->unset_userdata('user_session');
@@ -17,6 +20,9 @@ class Admins extends CI_Controller {
 
     }
 
+    /**
+     * The method for the login of admins
+     */
     public function login() {
 
         /**
@@ -35,7 +41,7 @@ class Admins extends CI_Controller {
                  * A `non-admin` user is trying to access admin, kill the session and redirect
                  */
                 $this->session->unset_userdata('user_session');
-                return redrect();
+                return redirect();
 
             }
 
@@ -78,22 +84,5 @@ class Admins extends CI_Controller {
         }
 
     }
-
-    public function orders() {
-
-        if (empty($this->session->userdata('user_session')['is_admin'])) {
-            /**
-             * A `non-admin` user is trying to access admin, kill the session and redirect
-             */
-            $this->session->unset_userdata('user_session');
-            return redirect();
-
-        }
-
-        $data['page_title'] = 'Dashboard Orders';
-        $this->load->view('admin/admin-orders-list', $data);
-
-    }
-
 
 }

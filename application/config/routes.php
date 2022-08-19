@@ -64,9 +64,6 @@ $route['login'] = 'users/login';
  */
 $route['admin'] = 'admins/login';
 $route['admin/logout'] = 'admins/logout';
-$route['dashboard'] = 'admins/orders';
-$route['dashboard/orders'] = 'admins/orders'; /**  CHANGE LATER**/
-
 
 /**
  * Users - Products routes collection
@@ -78,9 +75,16 @@ $route['products/show/(:any)']['get'] = 'users/show/$1';
 /**
  * Admin - Products routes collection
  */
+$route['dashboard'] = 'orders/get_orders_list';
+$route['dashboard/orders'] = 'orders/get_orders_list';
+$route['dashboard/orders/(:any)']['get'] = 'orders/order_list_paginate/$1';
+$route['orders/show/(:any)'] = 'orders/show/$1';
+
 $route['dashboard/products'] = 'products/products_list';
 $route['products/edit_product/(:any)']['get'] = 'products/edit_product/$1';
+
 $route['products/update_product/(:any)'] = 'products/update_product/$1';
+
 $route['products/product_list_paginate/(:any)']['get'] = 'products/product_list_paginate/$1';
 
 $route['products/delete_product/(:any)']['get'] = 'products/delete_product/$1';

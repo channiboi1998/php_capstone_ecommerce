@@ -2,7 +2,9 @@
 
 class Order extends CI_Model {
 
-
+    /***
+     * Construct method for the Order Model
+     */
     public function __construct() {
 
         parent::__construct();
@@ -10,6 +12,103 @@ class Order extends CI_Model {
 
     }
 
+    /***
+     * This is the method responsible for updating the order status of a specific order by id
+     */
+    public function update_order_status_by_id($id) {
+
+        return $this->db->query("UPDATE `orders` SET `order_status` = ? WHERE `orders`.`id` = ?", [
+            $this->input->post('update_order_status'),
+            $id,
+        ]);
+
+    }
+
+
+    /***
+     * This method is responsible in fetching orders | being used in admin order list page and for AJAX Filters (to be created)
+     */
+    public function get_orders() {
+
+        if ($this->input->get('search_order_details') || $this->input->get('filter_order_by_status')) {
+
+                $result = $this->db->query("SELECT 
+                `orders`.*, 
+                CONCAT(`billing_information`.`billing_address`, ' ', `billing_information`.`billing_address_2`, ' ', `billing_information`.`billing_city`, ' ', `billing_information`.`billing_zipcode`) AS `billing_address` 
+                FROM `orders` INNER JOIN 
+                `billing_information` ON
+                `orders`.`id` = `billing_information`.`order_id`
+                WHERE `orders`.`order_status` LIKE ? AND (`orders`.`id` LIKE ? OR `orders`.`order_status` LIKE ? OR `orders`.`customer_name` LIKE ? OR `orders`.`email_address` LIKE ? OR `orders`.`amount` LIKE ?)", [
+                    '%'.$this->input->get('filter_order_by_status').'%',
+                    '%'.$this->input->get('search_order_details').'%',
+                    '%'.$this->input->get('search_order_details').'%',
+                    '%'.$this->input->get('search_order_details').'%',
+                    '%'.$this->input->get('search_order_details').'%',
+                    '%'.$this->input->get('search_order_details').'%',
+                ])->result_array();
+
+        } else {
+
+            $result = $this->db->query("SELECT 
+            `orders`.*, 
+            CONCAT(`billing_information`.`billing_address`, ' ', `billing_information`.`billing_address_2`, ' ', `billing_information`.`billing_city`, ' ', `billing_information`.`billing_zipcode`) AS `billing_address` 
+            FROM `orders` INNER JOIN 
+            `billing_information` ON
+            `orders`.`id` = `billing_information`.`order_id`")->result_array();
+
+        }
+
+        $page = (!empty($this->input->get('page')) ? (int)$this->input->get('page') : 1);
+                
+        $query = $this->db->last_query();
+
+        return $this->paginate($page, $query, count($result));
+
+    }
+
+    /***
+     * This private method is for pagination | Have set a static value of `6` as offset limit
+     */
+    private function paginate($page, $query, $numberOfResult) {
+
+        if(empty($page)) {
+            $page = 1;
+        }
+        
+        $resultPerPage = 6;
+        $numberOfPages = ceil($numberOfResult / $resultPerPage);
+        $pageFirstResult = ($page - 1) * $resultPerPage;
+        
+        $orders = $this->db->query($query. " LIMIT $pageFirstResult, $resultPerPage")->result_array();
+
+        return [
+            'orders' => $orders,
+            'number_of_pages' => $numberOfPages,
+        ];
+
+    }
+
+    /***
+     * This method is for fetching specific single order by id
+     */
+    public function get_single_order_by_id($id) {
+
+        return $this->db->query("SELECT *, `order_details`.`id` AS `order_details_id`
+        FROM `order_details` 
+        INNER JOIN 
+        `orders` ON
+        `order_details`.`order_id` = `orders`.`id`
+        INNER JOIN `billing_information` ON
+        `orders`.`id` = `billing_information`.`order_id`
+        INNER JOIN `shipping_information` ON
+        `billing_information`.`order_id` = `shipping_information`.`order_id`
+        WHERE `orders`.`id` = ?", [$id])->result_array();
+
+    }
+
+    /***
+     * This method is responsible in creating a new order 
+     */
     public function create_order() {
 
         /***
@@ -41,7 +140,9 @@ class Order extends CI_Model {
         }
 
         if ($this->form_validation->run() === FALSE) {
-
+            /***
+             * Means that there are errors found by the form validation
+             */
             return [
                 'status' => 'error',
                 'message' => validation_errors(),
@@ -118,7 +219,7 @@ class Order extends CI_Model {
                  * Insert the billing information of the user into the database
                  */
                 $this->db->query("INSERT INTO `billing_information` 
-                (`order_id`, `first_name`, `last_name`, `email_address`, `address`, `address_2`, `city`, `state`, `zipcode`, `created_at`, `updated_at`) 
+                (`order_id`, `billing_first_name`, `billing_last_name`, `billing_email_address`, `billing_address`, `billing_address_2`, `billing_city`, `billing_state`, `billing_zipcode`, `created_at`, `updated_at`) 
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())", [
                     $orderId,
                     $this->input->post('shipping_first_name'),
@@ -134,7 +235,7 @@ class Order extends CI_Model {
                 if (!empty($this->input->post('same_as_billing'))) {
 
                     $this->db->query("INSERT INTO `shipping_information` 
-                    (`order_id`, `first_name`, `last_name`, `email_address`, `address`, `address_2`, `city`, `state`, `zipcode`, `created_at`, `updated_at`) 
+                    (`order_id`, `shipping_first_name`, `shipping_last_name`, `shipping_email_address`, `shipping_address`, `shipping_address_2`, `shipping_city`, `shipping_state`, `shipping_zipcode`, `created_at`, `updated_at`) 
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())", [
                         $orderId,
                         $this->input->post('shipping_first_name'),
@@ -150,7 +251,7 @@ class Order extends CI_Model {
                 } else {
 
                     $this->db->query("INSERT INTO `shipping_information` 
-                    (`order_id`, `first_name`, `last_name`, `email_address`, `address`, `address_2`, `city`, `state`, `zipcode`, `created_at`, `updated_at`) 
+                    (`order_id`, `shipping_first_name`, `shipping_last_name`, `shipping_email_address`, `shipping_address`, `shipping_address_2`, `shipping_city`, `shipping_state`, `shipping_zipcode`, `created_at`, `updated_at`) 
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())", [
                         $orderId,
                         $this->input->post('billing_first_name'),

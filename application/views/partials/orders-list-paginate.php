@@ -1,27 +1,8 @@
-<?php   $this->load->view('templates/admin-header');  ?>
-<?php   $this->load->view('templates/admin-navbar');  ?>
-<?php   $this->load->view('templates/flashdata');  ?>
-
-<section class="container admin-orders-list p-5 pb-0">
-    <form action="<?=base_url('orders/order_list_paginate')?>" class="row order-search-filters" method="GET">
-        <div class="col">
-            <input type="text" class="form-control" placeholder="Search Order" name="search_order_details" id="search_order_details">
-        </div>
-        <div class="col text-right">
-            <select name="filter_order_by_status" class="filter-order-by-status form-select" id="filter_order_by_status">
-                <option value>Filter by Order Status: Show All</option>
-                <option value="processing">Filter by Order Status: Processing</option>
-                <option value="cancelled">Filter by Order Status: Cancelled</option>
-                <option value="completed">Filter by Order Status: Completed</option>
-            </select>
-        </div>
-    </form>
-</section>
-
-<section class="container admin-orders-list p-5" id="orders-list-paginate">
-
 <?php   for ($i = 1; $i<=$number_of_pages; $i++) {  ?>
-            <a class="order-list-paginate-page" href="<?=base_url('orders/order_list_paginate?page='.$i)?>"><?=$i?></a>
+            <a class="order-list-paginate-page" 
+            href="<?=base_url('orders/order_list_paginate'.(!empty($form_get_link) ? $form_get_link.'&page='.$i : '?page='.$i))?>">
+                <?=$i?>
+            </a>
 <?php   }   ?>
     <table class="table">
         <thead>
@@ -58,6 +39,3 @@
 ?>
         </tbody>
     </table>
-</section>
-
-<?php   $this->load->view('templates/admin-footer');  ?>

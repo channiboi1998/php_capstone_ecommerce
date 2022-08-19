@@ -3,13 +3,83 @@
 
 class Orders extends CI_Controller {
 
+    /***
+     * This is tthe construct method | calling up the libraries or Models to be used
+     */
     public function __construct() {
 
         parent::__construct();
 
         $this->load->model('Product');
         $this->load->model('Order');
-        //$this->session->unset_userdata('cart_session');
+
+    }
+
+
+    /***
+     * This method is for fetching a single order record on the database, used for showing single order template
+     */
+    public function show($id) {
+
+        $data['page_title'] = 'A Web Page';
+        $data['order_items'] = $this->Order->get_single_order_by_id($id);
+        $this->load->view('admin/single-order', $data);
+
+    }
+
+    /**
+     * Table Refresh on every AJAX call
+     */
+    public function order_list_paginate($parameter = NULL) {
+
+        $result = $this->Order->get_orders();
+
+        $data['orders'] = $result['orders'];
+        $data['number_of_pages'] = $result['number_of_pages'];
+        
+        if ($this->input->get('search_order_details') || $this->input->get('filter_order_by_status')) {
+
+            $data['form_get_link'] = '?search_order_details='.$this->input->get('search_order_details').'&filter_order_by_status='.$this->input->get('filter_order_by_status');
+
+        }
+
+        $this->load->view('partials/orders-list-paginate', $data);
+
+    }
+
+
+    /***
+     * This method is for fetching paginated orders in the database | pagination not yet created
+     */
+    public function get_orders_list() {
+
+        if (empty($this->session->userdata('user_session')['is_admin'])) {
+            /**
+             * A `non-admin` user is trying to access admin, kill the session and redirect
+             */
+            $this->session->unset_userdata('user_session');
+            return redirect();
+
+        }
+
+        $result = $this->Order->get_orders();
+
+        $data['orders'] = $result['orders'];
+        $data['number_of_pages'] = $result['number_of_pages'];
+        $data['page_title'] = 'Dashboard Orders';
+
+        $this->load->view('admin/admin-orders-list', $data);
+
+    }
+
+
+    /***
+     * This method is for AJAX updating order status
+     */
+    public function update_order_status($id) {
+
+        $result = $this->Order->update_order_status_by_id($id);
+        echo 'Order #'.$id.' status have been updated to "'.$this->input->post('update_order_status').'"';
 
     }
 

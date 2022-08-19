@@ -95,6 +95,9 @@ $(document).ready(function() {
 
     });
 
+    /***
+     * What this line of code is for is to process the AJAX post of the hidden form
+     */
     $(document).on('submit', 'form.hidden-form-update-category', function() {
 
         /***
@@ -251,6 +254,13 @@ $(document).ready(function() {
                  */
                 product_list_paginate();
 
+                SnackBar({
+                    width: "320px",
+                    position: "tc",
+                    message: "Product Successfully Deleted on the database",
+                    speed: "0.5s"
+                });
+
             });
 
         }
@@ -286,7 +296,14 @@ $(document).ready(function() {
     $(document).on('submit', 'form.edit-product', function() {
 
         $.post($(this).attr('action'), $(this).serialize(), function(res) {
-            console.log(res);
+
+            SnackBar({
+                width: "320px",
+                position: "tc",
+                message: res,
+                speed: "0.5s"
+            });
+        
             product_list_paginate();
             
         })
@@ -315,6 +332,7 @@ $(document).ready(function() {
      */
     product_list_paginate();
 
+
     /***
      * AJAX JS Method responsible for the pagination
      */
@@ -331,6 +349,7 @@ $(document).ready(function() {
         return false;
     })
 
+
     /***
      * Passing out the value of `#search_product_name` to the hidden form | Submitting it by calling `product_list_paginate`
      */
@@ -343,5 +362,81 @@ $(document).ready(function() {
         product_list_paginate();
 
     });
+
+
+    /***
+     * This method is the trigger for the AJAX functionality on updating a specific order's status
+     */
+    $(document).on('change', 'section.admin-orders-list form.update-order-status-form select.update-order-status', function() {
+
+        $(this).parent().submit();
+
+    });
+
+
+    /***
+     * This method is the AJAX functionality to update of a specific order's status
+     */
+    $(document).on('submit', 'section.admin-orders-list form.update-order-status-form', function() {
+
+        $.post($(this).attr('action'), $(this).serialize(), function(res) {
+            
+            SnackBar({
+                width: "320px",
+                position: "tc",
+                message: res,
+                speed: "0.5s"
+            });
+
+            $('form.order-search-filters').submit();
+
+        });
+
+        return false;
+    
+    });
+
+
+    /***
+     * This method is responsible for the pagination on orders list page
+     */
+    $(document).on('click', 'a.order-list-paginate-page', function() {
+
+        $.get($(this).attr('href'), $(this).serialize(), function(res) {
+
+            $('#orders-list-paginate').html(res);
+
+        });
+    
+        return false;
+
+    });
+
+
+    /***
+     * This line of code is to trigger submit via AJAX when these field  values are changed
+     */
+    $(document).on('change', 'input#search_order_details, select#filter_order_by_status', function() {
+        
+        $('form.order-search-filters').submit();
+
+    });
+
+
+    /***
+     * This method is to process AJAX on the orders list page | Triggers also when there are filter parameters set by admin-user
+     */
+    $(document).on('submit', 'form.order-search-filters', function() {
+    
+        $.get($(this).attr('action'), $(this).serialize(), function(res) {
+
+            $('#orders-list-paginate').html(res);
+
+        });
+
+        return false;
+
+    });
+
 
 });

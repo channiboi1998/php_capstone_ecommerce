@@ -34,6 +34,8 @@ $(document).ready(function() {
 
             SnackBar({
                 status: "success",
+                width: "320px",
+                position: "tc",
                 message: "Item added to cart!",
                 timeout: false,
             });
